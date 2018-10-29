@@ -14,6 +14,9 @@ class Config:
     SSL_REDIRECT = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_POOL_RECYCLE = os.environ.get('SQLALCHEMY_POOL_RECYCLE') or 3600
 
     @staticmethod
     def init_app(app):
@@ -22,20 +25,28 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    SQLALCHEMY_DATABASE_URI = \
+        os.environ.get('DEV_DATABASE_URL') or \
+        'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
+        os.environ.get('DATABASE_PASSWORD') + \
+        '@127.0.0.1:3306/subsidy_dev?charset=utf8'
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite://'
-    WTF_CSRF_ENABLED = False
+    SQLALCHEMY_DATABASE_URI = \
+        os.environ.get('TEST_DATABASE_URL') or \
+        'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
+        os.environ.get('DATABASE_PASSWORD') + \
+        '@127.0.0.1:3306/subsidy_test?charset=utf8'
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    SQLALCHEMY_DATABASE_URI = \
+        os.environ.get('DATABASE_URL') or \
+        'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
+        os.environ.get('DATABASE_PASSWORD') + \
+        '@127.0.0.1:3306/subsidy?charset=utf8'
 
     @classmethod
     def init_app(cls, app):

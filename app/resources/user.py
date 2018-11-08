@@ -6,6 +6,8 @@
 # 18-11-7 leo : Init
 
 from flask_restful import Resource, reqparse
+from .. import db
+from ..models import User
 
 parser = reqparse.RequestParser()
 parser.add_argument('username', help='This field cannot be blank', required=True)
@@ -15,19 +17,42 @@ parser.add_argument('password', help='This field cannot be blank', required=True
 class UserRegistration(Resource):
     def post(self):
         data = parser.parse_args()
-        return {
-            'message': 'User registration',
-            'data': data
-        }
+
+        if User.find_by_username(data['username']):
+            return {
+                'message': 'User %s already exists.' % data['username']
+            }, 403
+
+        new_user = User(username=data['username'], password=data['password'])
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            return {
+                'message': 'User %s was created.' % new_user.username
+            }, 201
+        except:
+            return {
+                'message': 'Something went wrong.'
+            }, 500
 
 
 class UserLogin(Resource):
     def post(self):
         data = parser.parse_args()
-        return {
-            'message': 'User login',
-            'data': data
-        }
+        current_user = User.find_by_username(data['username'])
+        if not current_user:
+            return {
+                'message': 'User %s does not exist.' % data['username']
+            }, 403
+
+        if current_user.verify_password(data['password']):
+            return {
+                'message': 'Logged in as %s.' % data['username']
+            }, 200
+        else:
+            return {
+                'message': 'Wrong credentials.'
+            }, 401
 
 
 class UserLogoutAccess(Resource):
@@ -53,14 +78,25 @@ class TokenRefresh(Resource):
 
 class AllUser(Resource):
     def get(self):
+        users = User.query.all()
         return {
-            'message': 'List of users'
-        }
+            'users': [{
+                'username': x.username,
+                'password': x.password_hash
+            } for x in users],
+        }, 200
 
     def delete(self):
-        return {
-            'message': 'Delete all users'
-        }
+        try:
+            num_rows_delete = db.session.query(User).delete()
+            db.session.commit()
+            return {
+                'message': '%s row(s) deleted.' % num_rows_delete
+            }, 200
+        except:
+            return {
+                'message': 'Something went wrong.'
+            }, 500
 
 
 class SecretResource(Resource):

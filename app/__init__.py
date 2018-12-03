@@ -7,10 +7,13 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_redis import FlaskRedis
 from config import config
 
 db = SQLAlchemy()
-
+jwt = JWTManager()
+redis_db = FlaskRedis()
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -18,6 +21,8 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     db.init_app(app)
+    redis_db.init_app(app)
+    jwt.init_app(app)
 
     if app.config['SSL_REDIRECT']:
         from flask_sslify import SSLify

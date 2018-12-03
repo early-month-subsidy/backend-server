@@ -15,6 +15,7 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
 # user routes
+api.add_resource(user_resources.Captcha, '/captcha')
 api.add_resource(user_resources.UserRegistration, '/registration')
 api.add_resource(user_resources.UserLogin, '/login')
 api.add_resource(user_resources.UserLogoutAccess, '/logout/access')

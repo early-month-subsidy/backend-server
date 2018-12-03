@@ -6,17 +6,28 @@
 # 18-10-13 leo : Init
 
 import os
+import datetime
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SSL_REDIRECT = False
+    # Sqlalchemy
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_POOL_RECYCLE = os.environ.get('SQLALCHEMY_POOL_RECYCLE') or 3600
+    # Jwt_extended
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-string'
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_CHECKED = ['access', 'refresh']
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=2)
+    # Redis
+    REDIS_URL = os.environ.get('REDIS_URL')
+    # restful
+    PROPAGATE_EXCEPTIONS = True
 
     @staticmethod
     def init_app(app):
@@ -30,6 +41,8 @@ class DevelopmentConfig(Config):
         'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
         os.environ.get('DATABASE_PASSWORD') + \
         '@127.0.0.1:3306/subsidy_dev?charset=utf8'
+    REDIS_URL = os.environ.get('REDIS_URL') or \
+        'redis://:' + os.environ.get('REDIS_PASSWORD') + '@localhost:6379/0'
 
 
 class TestingConfig(Config):

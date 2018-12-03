@@ -5,7 +5,7 @@
 #
 # 18-11-7 leo : Init
 
-import datetime
+from datetime import timedelta
 from flask import url_for
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import create_access_token, create_refresh_token, \
@@ -38,7 +38,7 @@ class Captcha(Resource):
         captcha_id = generate_captcha_chars(len=10)
         filename = captcha_id + '.png'
         redis_db.set('captcha.' + captcha_id, chars.lower())
-        redis_db.expire('captcha.' + captcha_id, datetime.timedelta(minutes=10))
+        redis_db.expire('captcha.' + captcha_id, timedelta(minutes=10))
         captcha_generator.write(chars, 'app/static/captchas/' + filename)
         return {
             'captcha_id': captcha_id,
@@ -121,7 +121,7 @@ class UserLogoutAccess(Resource):
         try:
             revoked_token = 'jti.' + jti
             redis_db.set(revoked_token, 'True')
-            redis_db.expire(revoked_token, datetime.timedelta(hours=2))
+            redis_db.expire(revoked_token, timedelta(hours=2))
             return {
                 'message': 'Access token has been revoked.'
             }, 200
@@ -138,7 +138,7 @@ class UserLogoutRefresh(Resource):
         try:
             revoked_token = 'jti.' + jti
             redis_db.set(revoked_token, 'True')
-            redis_db.expire(revoked_token, datetime.timedelta(days=1))
+            redis_db.expire(revoked_token, timedelta(days=1))
             return {
                        'message': 'Refresh token has been revoked.'
                    }, 200

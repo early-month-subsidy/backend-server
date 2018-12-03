@@ -6,7 +6,7 @@
 # 18-10-13 leo : Init
 
 import os
-import datetime
+from datetime import timedelta
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -23,7 +23,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-string'
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_CHECKED = ['access', 'refresh']
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=2)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
     # Redis
     REDIS_URL = os.environ.get('REDIS_URL')
     # restful

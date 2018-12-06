@@ -5,8 +5,19 @@
 #
 # 18-10-29 leo : Init
 
+import json
+from datetime import datetime
 from passlib.hash import pbkdf2_sha256 as sha256
 from . import db
+
+
+class TimestampMixin(object):
+    """
+        Timestamp mixin
+    """
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now,
+                           onupdate=datetime.now)
 
 
 class Role(db.Model):
@@ -25,6 +36,7 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    restaurants = db.relationship('Restaurant', backref='owner')
 
     @property
     def password(self):
@@ -43,3 +55,63 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+
+class Restaurant(db.Model, TimestampMixin):
+    __tablename__ = 'restaurants'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, index=True)
+    introduction = db.Column(db.String(256))
+    opening_time = db.Column(db.String(64))
+    address = db.Column(db.String(128))
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    images = db.relationship('RestaurantImage', backref='restaurant')
+
+    @classmethod
+    def find_by_userid(cls, userid):
+        return cls.query.filter_by(owner_id=userid).all()
+
+    @classmethod
+    def find_by_id(cls, restaurant_id):
+        return cls.query.get(restaurant_id)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'introduction': self.introduction,
+            'opening_time': self.opening_time,
+            'address': self.address,
+            'images': self.images
+        }
+
+    def __repr__(self):
+        return '<Restaurant %r>' % self.name
+
+
+class RestaurantImage(db.Model):
+    __tablename__ = 'restaurant_images'
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, default=0, nullable=False)
+    image_url = db.Column(db.String(128), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+
+    @classmethod
+    def restaurant_image_count(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).count()
+
+    @classmethod
+    def find_by_id(cls, image_id):
+        return cls.query.get(image_id)
+
+    @classmethod
+    def find_by_restaurant_id(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).order_by(cls.order_id).all()
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'order_id': self.order_id,
+            'image_url': self.image_url,
+            'restaurant_id': self.restaurant_id
+        }

@@ -86,6 +86,7 @@ class UserRegistration(Resource):
                 'refresh_token': refresh_token
             }, 201
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
             }, 500

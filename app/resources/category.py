@@ -35,17 +35,17 @@ class CategorySellerAll(Resource):
                 db.session.add(category)
                 db.session.commit()
                 return {
-                           'category': category.to_json()
-                       }, 200
+                    'category': category.to_json()
+                }, 200
             except:
                 db.session.rollback()
                 return {
-                           'message': 'Something went wrong.'
-                       }, 400
+                    'message': 'Something went wrong.'
+                }, 400
         else:
             return {
-                       'message': 'This restaurant is not yours.'
-                   }, 403
+                'message': 'This restaurant is not yours.'
+            }, 403
 
 
 class CategorySingle(Resource):
@@ -80,13 +80,13 @@ class CategorySingle(Resource):
                 db.session.delete(category)
                 db.session.commit()
                 return {
-                           'message': 'Delete category %s success.' % category.name
-                       }, 200
+                    'message': 'Delete category %s success.' % category.name
+                }, 200
             except:
                 return {
-                           'message': 'Something went wrong.'
-                       }, 400
+                    'message': 'Something went wrong.'
+                }, 400
         else:
             return {
-                       'message': 'This restaurant is not yours.'
-                   }, 403
+                'message': 'This restaurant is not yours.'
+            }, 403

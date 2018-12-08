@@ -65,7 +65,8 @@ class Restaurant(db.Model, TimestampMixin):
     opening_time = db.Column(db.String(64))
     address = db.Column(db.String(128))
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    images = db.relationship('RestaurantImage', backref='restaurant')
+    images = db.relationship('RestaurantImage', cascade='all,delete', backref='restaurant')
+    boards = db.relationship('Board', cascade='all,delete', backref='restaurant')
 
     @classmethod
     def find_by_userid(cls, userid):
@@ -82,7 +83,8 @@ class Restaurant(db.Model, TimestampMixin):
             'introduction': self.introduction,
             'opening_time': self.opening_time,
             'address': self.address,
-            'images': self.images
+            'images': [image.to_json() for image in self.images],
+            'boards': [b.to_json() for b in self.boards]
         }
 
     def __repr__(self):
@@ -113,5 +115,33 @@ class RestaurantImage(db.Model):
             'id': self.id,
             'order_id': self.order_id,
             'image_url': self.image_url,
+            'restaurant_id': self.restaurant_id
+        }
+
+
+class Board(db.Model):
+    __tablename__ = 'boards'
+    id = db.Column(db.Integer, primary_key=True)
+    occupation = db.Column(db.Boolean, default=False)
+    name = db.Column(db.String(64), nullable=False)
+    seat_num = db.Column(db.Integer, default=2)
+    qr_code = db.Column(db.String(128))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+
+    @classmethod
+    def find_by_id(cls, board_id):
+        return cls.query.get(board_id)
+
+    @classmethod
+    def find_by_restaurant_id(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).order_by(cls.seat_num).all()
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'occupation': self.occupation,
+            'name': self.name,
+            'seat_num': self.seat_num,
+            'qr_code': self.qr_code,
             'restaurant_id': self.restaurant_id
         }

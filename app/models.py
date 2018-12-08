@@ -155,6 +155,7 @@ class Category(db.Model):
     name = db.Column(db.String(64), nullable=False)
     priority = db.Column(db.Integer, default=0, nullable=False)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+    foods = db.relationship('Food', cascade='all,delete', backref='category')
 
     @classmethod
     def find_by_restaurant_id(cls, restaurant_id):
@@ -169,5 +170,38 @@ class Category(db.Model):
             'id': self.id,
             'name': self.name,
             'priority': self.priority,
-            'restaurant_id': self.restaurant_id
+            'restaurant_id': self.restaurant_id,
+            'foods': [f.to_json() for f in self.foods]
+        }
+
+
+class Food(db.Model):
+    __tablename__ = 'foods'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    description = db.Column(db.String(64))
+    price = db.Column(db.Float, nullable=False)
+    image = db.Column(db.String(128))
+    likes = db.Column(db.Integer, default=0)
+    sales = db.Column(db.Integer, default=0)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+
+    @classmethod
+    def find_by_category_id(cls, category_id):
+        return cls.query.filter_by(category_id=category_id).order_by(cls.likes).all()
+
+    @classmethod
+    def find_by_id(cls, food_id):
+        return cls.query.get(food_id)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'image': self.image,
+            'likes': self.likes,
+            'sales': self.sales,
+            'category_id': self.category_id
         }

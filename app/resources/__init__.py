@@ -12,6 +12,7 @@ from . import user as user_resources
 from . import restaurant as restaurant_resources
 from . import board as board_resources
 from . import category as category_resources
+from . import food as food_resources
 
 api_bp = Blueprint('api', __name__)
 
@@ -42,3 +43,7 @@ api.add_resource(board_resources.BoardSingle, '/api/restaurants/<int:restaurant_
 # category routes
 api.add_resource(category_resources.CategorySellerAll, '/seller/restaurants/<int:restaurant_id>/categories')
 api.add_resource(category_resources.CategorySingle, '/api/restaurants/<int:restaurant_id>/categories/<int:category_id>')
+
+# food routes
+api.add_resource(food_resources.FoodSellerAll, '/seller/categories/<int:category_id>/foods')
+api.add_resource(food_resources.FoodSingle, '/api/categories/<int:category_id>/foods/<int:food_id>')

@@ -67,6 +67,7 @@ class Restaurant(db.Model, TimestampMixin):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     images = db.relationship('RestaurantImage', cascade='all,delete', backref='restaurant')
     boards = db.relationship('Board', cascade='all,delete', backref='restaurant')
+    categories = db.relationship('Category', cascade='all,delete', backref='restaurant')
 
     @classmethod
     def find_by_userid(cls, userid):
@@ -84,7 +85,8 @@ class Restaurant(db.Model, TimestampMixin):
             'opening_time': self.opening_time,
             'address': self.address,
             'images': [image.to_json() for image in self.images],
-            'boards': [b.to_json() for b in self.boards]
+            'boards': [b.to_json() for b in self.boards],
+            'categories': [c.to_json() for c in self.categories]
         }
 
     def __repr__(self):
@@ -143,5 +145,29 @@ class Board(db.Model):
             'name': self.name,
             'seat_num': self.seat_num,
             'qr_code': self.qr_code,
+            'restaurant_id': self.restaurant_id
+        }
+
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    priority = db.Column(db.Integer, default=0, nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+
+    @classmethod
+    def find_by_restaurant_id(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).order_by(cls.priority).all()
+
+    @classmethod
+    def find_by_id(cls, category_id):
+        return cls.query.get(category_id)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'priority': self.priority,
             'restaurant_id': self.restaurant_id
         }

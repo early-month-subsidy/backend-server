@@ -11,6 +11,7 @@ from flask_restful import Api
 from . import user as user_resources
 from . import restaurant as restaurant_resources
 from . import board as board_resources
+from . import category as category_resources
 
 api_bp = Blueprint('api', __name__)
 
@@ -35,5 +36,9 @@ api.add_resource(restaurant_resources.RestaurantUploadImage, '/seller/restaurant
 api.add_resource(restaurant_resources.RestaurantImageSingle, '/seller/restaurants/<int:restaurant_id>/images/<int:image_id>')
 
 # board routes
-api.add_resource(board_resources.BoardSellerAll, '/seller/restaurant/<int:restaurant_id>/boards')
+api.add_resource(board_resources.BoardSellerAll, '/seller/restaurants/<int:restaurant_id>/boards')
 api.add_resource(board_resources.BoardSingle, '/api/restaurants/<int:restaurant_id>/boards/<int:board_id>')
+
+# category routes
+api.add_resource(category_resources.CategorySellerAll, '/seller/restaurants/<int:restaurant_id>/categories')
+api.add_resource(category_resources.CategorySingle, '/api/restaurants/<int:restaurant_id>/categories/<int:category_id>')

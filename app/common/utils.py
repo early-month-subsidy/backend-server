@@ -8,6 +8,7 @@
 import random
 import string
 
+ALLOW_EXTENSION = {'png', 'jpg', 'jpeg', 'gif'}
 
 def generate_captcha_chars(len):
     chars = string.ascii_lowercase + string.ascii_uppercase + string.digits

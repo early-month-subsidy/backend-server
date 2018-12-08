@@ -9,10 +9,9 @@ from flask import url_for
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
 from .. import db
 from ..models import User, Restaurant, RestaurantImage
-from ..common.utils import generate_captcha_chars
+from ..common.utils import generate_captcha_chars, ALLOW_EXTENSION
 
 restaurant_create_parser = reqparse.RequestParser()
 restaurant_create_parser.add_argument('name', help='This field cannot be blank', required=True)
@@ -143,9 +142,6 @@ class RestaurantUserQuery(Resource):
         }, 200
 
 
-ALLOW_EXTENSION = {'png', 'jpg', 'jpeg', 'gif'}
-
-
 class RestaurantUploadImage(Resource):
     @jwt_required
     def post(self, restaurant_id):
@@ -156,8 +152,9 @@ class RestaurantUploadImage(Resource):
         if restaurant.owner_id == current_user.id:
             photo = data['file']
             # check file type
-            if photo.filename.rsplit('.', 1)[1].lower() in ALLOW_EXTENSION:
-                filename = secure_filename(photo.filename)
+            file_type = photo.filename.rsplit('.', 1)[1].lower()
+            if file_type in ALLOW_EXTENSION:
+                filename = generate_captcha_chars(16) + '.' + file_type
                 photo.save('app/static/images/' + filename)
                 url = url_for('static', filename='images/' + filename, _external=True)
                 order_id = RestaurantImage.restaurant_image_count(restaurant_id)

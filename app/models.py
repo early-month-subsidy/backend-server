@@ -37,6 +37,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     restaurants = db.relationship('Restaurant', backref='owner')
+    orders = db.relationship('Order', backref='owner')
 
     @property
     def password(self):
@@ -221,6 +222,7 @@ class OrderItem(TimestampMixin, db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
     food_id = db.Column(db.Integer, db.ForeignKey('foods.id'))
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=True)
     owner = db.relationship('User')
     food = db.relationship('Food')
 
@@ -246,4 +248,50 @@ class OrderItem(TimestampMixin, db.Model):
                 'id': self.food_id,
                 'name': self.food.name
             }
+        }
+
+
+class OrderStatus(object):
+    UNFILLED = 'UNFILLED'
+    UNPAID = 'UNPAID'
+    FINISHED = 'FINISHED'
+
+
+class Order(TimestampMixin, db.Model):
+    __tablename__ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(16), default=OrderStatus.UNFILLED)
+    remark = db.Column(db.String(64))
+    total_cost = db.Column(db.Float, default=0)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+    restaurant = db.relationship('Restaurant')
+    items = db.relationship('OrderItem', cascade='all,delete', backref='order')
+
+    @classmethod
+    def find_by_owner_id(cls, owner_id):
+        return cls.query.filter_by(owner_id=owner_id).order_by(cls.updated_at).all()
+
+    @classmethod
+    def find_by_restaurant_id(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).order_by(cls.created_at).all()
+
+    @classmethod
+    def find_by_id(cls, order_id):
+        return cls.query.get(order_id)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'created_time': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_time': self.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'status': self.status,
+            'remark': self.remark,
+            'total_cost': self.total_cost,
+            'owner_id': self.owner_id,
+            'restaurant': {
+                'id': self.restaurant_id,
+                'name': self.restaurant.name
+            },
+            'items': [i.to_json() for i in self.items]
         }

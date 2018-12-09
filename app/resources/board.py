@@ -7,8 +7,9 @@
 
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import and_
 from .. import db
-from ..models import Board, User, Restaurant
+from ..models import Board, User, Restaurant, OrderItem, OrderItemStatus
 
 board_create_parser = reqparse.RequestParser()
 board_create_parser.add_argument('name', help='This field cannot be blank', required=True)
@@ -74,6 +75,10 @@ class BoardSingle(Resource):
             elif action == 'unlock':
                 board.occupation = False
                 message = message + 'unlock success.'
+                # delete all ordering order item.
+                db.session.query(OrderItem).filter(
+                    and_(OrderItem.status == OrderItemStatus.ORDERING,
+                         OrderItem.board_id == board_id)).delete()
             else:
                 return {
                     'message': 'Unknown action.'

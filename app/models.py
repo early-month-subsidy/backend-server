@@ -205,3 +205,45 @@ class Food(db.Model):
             'sales': self.sales,
             'category_id': self.category_id
         }
+
+
+class OrderItemStatus(object):
+    ORDERING = 'ORDERING'
+    CONFIRMED = 'CONFIRMED'
+    CANCELED = 'CANCELED'
+
+
+class OrderItem(TimestampMixin, db.Model):
+    __tablename__ = 'order_items'
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(16), default=OrderItemStatus.ORDERING)
+    quantity = db.Column(db.Integer, default=1)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
+    food_id = db.Column(db.Integer, db.ForeignKey('foods.id'))
+    owner = db.relationship('User')
+    food = db.relationship('Food')
+
+    @classmethod
+    def find_by_board_id(cls, board_id):
+        return cls.query.filter_by(board_id=board_id, status=OrderItemStatus.ORDERING).all()
+
+    @classmethod
+    def find_by_id(cls, order_item_id):
+        return cls.query.get(order_item_id)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'status': self.status,
+            'quantity': self.quantity,
+            'owner': {
+                'id': self.owner_id,
+                'name': self.owner.username
+            },
+            'board_id': self.board_id,
+            'food': {
+                'id': self.food_id,
+                'name': self.food.name
+            }
+        }

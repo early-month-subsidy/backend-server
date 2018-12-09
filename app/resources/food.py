@@ -51,6 +51,7 @@ class FoodSellerAll(Resource):
             }, 400
 
 
+# TODO: add likes link.
 class FoodSingle(Resource):
     def get(self, category_id, food_id):
         food = Food.find_by_id(food_id)

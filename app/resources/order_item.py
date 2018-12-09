@@ -49,6 +49,7 @@ class OrderItemAll(Resource):
             }, 400
 
 
+# TODO: cancel order item by seller
 class OrderItemSingle(Resource):
     def get(self, order_item_id):
         order_item = OrderItem.find_by_id(order_item_id)
@@ -58,6 +59,7 @@ class OrderItemSingle(Resource):
 
     @jwt_required
     def put(self, order_item_id):
+        # TODO: add status judge
         data = order_item_update_parser.parse_args()
         current_user = User.find_by_username(get_jwt_identity())
         order_item = OrderItem.find_by_id(order_item_id)

@@ -26,7 +26,8 @@ class Config:
     JWT_BLACKLIST_CHECKED = ['access', 'refresh']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
     # Redis
-    REDIS_URL = os.environ.get('REDIS_URL')
+    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://:' + os.environ.get(
+        'REDIS_PASSWORD') + '@localhost:6379/0'
     # restful
     PROPAGATE_EXCEPTIONS = True
 
@@ -42,8 +43,6 @@ class DevelopmentConfig(Config):
         'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
         os.environ.get('DATABASE_PASSWORD') + \
         '@127.0.0.1:3306/subsidy_dev?charset=utf8'
-    REDIS_URL = os.environ.get('REDIS_URL') or \
-        'redis://:' + os.environ.get('REDIS_PASSWORD') + '@localhost:6379/0'
 
 
 class TestingConfig(Config):

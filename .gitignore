@@ -107,4 +107,7 @@ venv.bak/
 .idea
 
 # captcha
-static/captchas/
+app/static/captchas/
+
+# images
+app/static/images/

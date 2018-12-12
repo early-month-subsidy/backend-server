@@ -41,7 +41,7 @@ class CategorySellerAll(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -83,9 +83,10 @@ class CategorySingle(Resource):
                     'message': 'Delete category %s success.' % category.name
                 }, 200
             except:
+                db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'

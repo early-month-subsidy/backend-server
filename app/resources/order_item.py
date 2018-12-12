@@ -8,7 +8,7 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .. import db
-from ..models import OrderItem, User, Board
+from ..models import OrderItem, User, Board, OrderItemStatus
 
 order_item_create_parser = reqparse.RequestParser()
 order_item_create_parser.add_argument('quantity', type=int, help='This field cannot be blank', required=True)
@@ -44,9 +44,10 @@ class OrderItemAll(Resource):
                 'order_item': order_item.to_json()
             }, 200
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
-            }, 400
+            }, 500
 
 
 # TODO: cancel order item by seller
@@ -59,11 +60,10 @@ class OrderItemSingle(Resource):
 
     @jwt_required
     def put(self, order_item_id):
-        # TODO: add status judge
         data = order_item_update_parser.parse_args()
         current_user = User.find_by_username(get_jwt_identity())
         order_item = OrderItem.find_by_id(order_item_id)
-        if order_item.owner_id == current_user.id:
+        if order_item.owner_id == current_user.id and order_item.status == OrderItemStatus.ORDERING:
             action = data['action']
             if action == 'increment':
                 order_item.quantity += 1
@@ -85,17 +85,17 @@ class OrderItemSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
-                'message': 'This order item is not yours.'
+                'message': 'This order item is not yours or this item is confirmed.'
             }, 403
 
     @jwt_required
     def delete(self, order_item_id):
         current_user = User.find_by_username(get_jwt_identity())
         order_item = OrderItem.find_by_id(order_item_id)
-        if order_item.owner_id == current_user.id:
+        if order_item.owner_id == current_user.id and order_item.status == OrderItemStatus.ORDERING:
             try:
                 db.session.delete(order_item)
                 db.session.commit()
@@ -106,8 +106,8 @@ class OrderItemSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
-                'message': 'This order item is not yours.'
+                'message': 'This order item is not yours or this item is confirmed.'
             }, 403

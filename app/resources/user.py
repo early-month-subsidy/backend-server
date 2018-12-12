@@ -127,6 +127,7 @@ class UserLogoutAccess(Resource):
                 'message': 'Access token has been revoked.'
             }, 200
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
             }, 500
@@ -144,6 +145,7 @@ class UserLogoutRefresh(Resource):
                        'message': 'Refresh token has been revoked.'
                    }, 200
         except:
+            db.session.rollback()
             return {
                        'message': 'Something went wrong.'
                    }, 500
@@ -177,6 +179,7 @@ class AllUser(Resource):
                 'message': '%s row(s) deleted.' % num_rows_delete
             }, 200
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
             }, 500

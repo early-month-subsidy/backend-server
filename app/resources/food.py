@@ -48,7 +48,7 @@ class FoodSellerAll(Resource):
             db.session.rollback()
             return {
                 'message': 'Something went wrong.'
-            }, 400
+            }, 500
 
 
 # TODO: add likes link.
@@ -78,16 +78,17 @@ class FoodSingle(Resource):
                 db.session.add(food)
                 db.session.commit()
                 return {
-                           'food': food.to_json()
-                       }, 200
+                    'food': food.to_json()
+                }, 200
             except:
+                db.session.rollback()
                 return {
-                           'message': 'Something went wrong.'
-                       }, 400
+                    'message': 'Something went wrong.'
+                }, 500
         else:
             return {
-                       'message': 'Not support file type.'
-                   }, 403
+                'message': 'Not support file type.'
+            }, 403
 
     @jwt_required
     def delete(self, category_id, food_id):
@@ -97,9 +98,10 @@ class FoodSingle(Resource):
             db.session.delete(food)
             db.session.commit()
             return {
-                       'message': 'Delete food %s success.' % food.name
-                   }, 200
+                'message': 'Delete food %s success.' % food.name
+            }, 200
         except:
+            db.session.rollback()
             return {
-                       'message': 'Something went wrong.'
-                   }, 400
+                'message': 'Something went wrong.'
+            }, 500

@@ -52,7 +52,7 @@ class OrderUserAll(Resource):
             db.session.rollback()
             return {
                 'message': 'Something went wrong.',
-            }, 400
+            }, 500
 
 
 class OrderUserSingle(Resource):
@@ -88,7 +88,7 @@ class OrderUserSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'You can not change this order.'
@@ -110,7 +110,7 @@ class OrderUserSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'You do not have the right to pay the order.'
@@ -163,7 +163,7 @@ class OrderSellerSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -184,7 +184,7 @@ class OrderSellerSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'

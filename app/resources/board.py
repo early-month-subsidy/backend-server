@@ -46,7 +46,7 @@ class BoardSellerAll(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -93,7 +93,7 @@ class BoardSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -112,9 +112,10 @@ class BoardSingle(Resource):
                     'message': 'Delete board %s success.' % board.name
                 }, 200
             except:
+                db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'

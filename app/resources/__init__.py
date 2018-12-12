@@ -35,6 +35,7 @@ api.add_resource(restaurant_resources.RestaurantSellerAll, '/seller/restaurants'
 api.add_resource(restaurant_resources.RestaurantSellerSingle, '/seller/restaurants/<int:restaurant_id>')
 api.add_resource(restaurant_resources.RestaurantUserAll, '/api/restaurants')
 api.add_resource(restaurant_resources.RestaurantUserQuery, '/api/restaurants/query')
+api.add_resource(restaurant_resources.RestaurantUserSingle, '/api/restaurants/<int:restaurant_id>')
 api.add_resource(restaurant_resources.RestaurantUploadImage, '/seller/restaurants/<int:restaurant_id>/images')
 api.add_resource(restaurant_resources.RestaurantImageSingle, '/seller/restaurants/<int:restaurant_id>/images/<int:image_id>')
 

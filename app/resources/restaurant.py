@@ -62,7 +62,7 @@ class RestaurantSellerAll(Resource):
             db.session.rollback()
             return {
                 'message': 'Something went wrong.',
-            }, 400
+            }, 500
 
 
 class RestaurantSellerSingle(Resource):
@@ -98,7 +98,7 @@ class RestaurantSellerSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -116,9 +116,10 @@ class RestaurantSellerSingle(Resource):
                     'message': 'Restaurant %s delete success.' % restaurant.name
                 }, 200
             except:
+                db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This restaurant is not yours.'
@@ -139,6 +140,14 @@ class RestaurantUserQuery(Resource):
         restaurants = Restaurant.query.filter(Restaurant.name.like('%%s%', data['name'])).all()
         return {
             'restaurants': [r.to_json() for r in restaurants]
+        }, 200
+
+
+class RestaurantUserSingle(Resource):
+    def get(self, restaurant_id):
+        restaurant = Restaurant.find_by_id(restaurant_id)
+        return {
+            'restaurant': restaurant.to_json()
         }, 200
 
 
@@ -168,9 +177,10 @@ class RestaurantUploadImage(Resource):
                         'image': new_image.to_json()
                     }, 200
                 except:
+                    db.session.rollback()
                     return {
                         'message': 'Something went wrong.'
-                    }, 400
+                    }, 500
             else:
                 return {
                     'message': 'Not support file type.'
@@ -204,7 +214,8 @@ class RestaurantImageSingle(Resource):
                 'message': 'Restaurant image %s delete success.' % image_id
             }, 200
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
-            }, 400
+            }, 500
 

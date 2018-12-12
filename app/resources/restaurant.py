@@ -143,6 +143,14 @@ class RestaurantUserQuery(Resource):
         }, 200
 
 
+class RestaurantUserSingle(Resource):
+    def get(self, restaurant_id):
+        restaurant = Restaurant.find_by_id(restaurant_id)
+        return {
+            'restaurant': restaurant.to_json()
+        }, 200
+
+
 class RestaurantUploadImage(Resource):
     @jwt_required
     def post(self, restaurant_id):

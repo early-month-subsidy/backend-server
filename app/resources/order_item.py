@@ -44,9 +44,10 @@ class OrderItemAll(Resource):
                 'order_item': order_item.to_json()
             }, 200
         except:
+            db.session.rollback()
             return {
                 'message': 'Something went wrong.'
-            }, 400
+            }, 500
 
 
 # TODO: cancel order item by seller
@@ -85,7 +86,7 @@ class OrderItemSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This order item is not yours.'
@@ -106,7 +107,7 @@ class OrderItemSingle(Resource):
                 db.session.rollback()
                 return {
                     'message': 'Something went wrong.'
-                }, 400
+                }, 500
         else:
             return {
                 'message': 'This order item is not yours.'

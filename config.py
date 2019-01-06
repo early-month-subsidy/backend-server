@@ -30,6 +30,9 @@ class Config:
         'REDIS_PASSWORD') + '@localhost:6379/0'
     # restful
     PROPAGATE_EXCEPTIONS = True
+    # mini program
+    APPID = os.environ.get("APPID")
+    APP_SECRET = os.environ.get("APP_SECRET")
 
     @staticmethod
     def init_app(app):

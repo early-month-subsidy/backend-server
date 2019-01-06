@@ -5,8 +5,10 @@
 #
 # 18-11-7 leo : Init
 
+import requests
+import json
 from datetime import timedelta
-from flask import url_for
+from flask import url_for, current_app
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import create_access_token, create_refresh_token, \
     jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt
@@ -24,6 +26,9 @@ captcha_parser.add_argument('captcha', help='This field cannot be blank', requir
 login_parser = reqparse.RequestParser()
 login_parser.add_argument('username', help='This field cannot be blank', required=True)
 login_parser.add_argument('password', help='This field cannot be blank', required=True)
+
+wx_login_parser = reqparse.RequestParser()
+wx_login_parser.add_argument('code', help='This field cannot be blank', required=True)
 
 registration_parser = reqparse.RequestParser()
 registration_parser.add_argument('username', help='This field cannot be blank', required=True)
@@ -113,6 +118,43 @@ class UserLogin(Resource):
             return {
                 'message': 'Wrong credentials.'
             }, 401
+
+
+class UserWXLogin(Resource):
+    def post(self):
+        data = wx_login_parser.parse_args()
+        url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + \
+              current_app.config.get("APPID") + "&secret=" + \
+              current_app.config.get("APP_SECRET") + "&js_code=" + \
+              data['code'] + "&grant_type=authorization_code"
+        try:
+            res = requests.get(url).content.decode('utf-8')
+            res_data = json.loads(res)
+            openid = res_data["openid"]
+        except:
+            return {
+                'message': 'request wx login went wrong.',
+            }, 500
+        user = User.find_by_username(openid)
+        message = 'Logged in as %s.' % openid
+        if not user:
+            user = User(username=openid)
+            try:
+                db.session.add(user)
+                db.session.commit()
+                message = 'User %s was created.' % user.username
+            except:
+                db.session.rollback()
+                return {
+                    'message': 'Something went wrong.'
+                }, 500
+        access_token = create_access_token(identity=openid)
+        refresh_token = create_refresh_token(identity=openid)
+        return {
+            'message': message,
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }, 200
 
 
 class UserLogoutAccess(Resource):

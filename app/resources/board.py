@@ -5,11 +5,15 @@
 #
 # 18-12-6 leo : Init
 
+import requests
+import json
+from flask import url_for
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import and_
 from .. import db
 from ..models import Board, User, Restaurant, OrderItem, OrderItemStatus
+from ..common.utils import get_wx_access_token, generate_captcha_chars
 
 board_create_parser = reqparse.RequestParser()
 board_create_parser.add_argument('name', help='This field cannot be blank', required=True)
@@ -32,7 +36,6 @@ class BoardSellerAll(Resource):
         current_user = User.find_by_username(get_jwt_identity())
         restaurant = Restaurant.find_by_id(restaurant_id)
         if restaurant.owner_id == current_user.id:
-            # TODO create qr code (not sure format)
             board = Board(name=data['name'], seat_num=data['seat_num'], restaurant_id=restaurant_id)
             restaurant.boards.append(board)
             try:
@@ -98,6 +101,45 @@ class BoardSingle(Resource):
             return {
                 'message': 'This restaurant is not yours.'
             }, 403
+
+    @jwt_required
+    def patch(self, restaurant_id, board_id):
+        current_user = User.find_by_username(get_jwt_identity())
+        restaurant = Restaurant.find_by_id(restaurant_id)
+        board = Board.find_by_id(board_id)
+        if restaurant.owner_id == current_user.id:
+            # create qr code
+            access_token = get_wx_access_token().decode('utf-8')
+            url = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?' + \
+                  'access_token=' + access_token
+            payload = {
+                'scene': str(restaurant_id) + ":" + str(board_id),
+                'page': 'pages/order-food/order-food'
+            }
+            res = requests.post(url, json=payload).content.decode('utf-8')
+            try:
+                # filename = generate_captcha_chars(12) + '.png'
+                # with open('app/static/qr_codes/' + filename, 'wb') as file:
+                #     file.write(res)
+                # board.qr_code = url_for('static', filename='qr_codes/' + filename, _external=True)
+                # db.session.add(board)
+                # db.session.commit()
+                return {
+                    'message': 'create qr code for board success.',
+                    'qr_code': res
+                }, 200
+            except:
+                res = res.decode('utf-8')
+                res_data = json.loads(res)
+                return {
+                    'message': 'Something went wrong.',
+                    'errmsg': res_data['errmsg']
+                }, 500
+        else:
+            return {
+                'message': 'This restaurant is not yours.'
+            }, 403
+
 
     @jwt_required
     def delete(self, restaurant_id, board_id):

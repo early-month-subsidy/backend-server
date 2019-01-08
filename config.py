@@ -45,7 +45,7 @@ class DevelopmentConfig(Config):
         os.environ.get('DEV_DATABASE_URL') or \
         'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
         os.environ.get('DATABASE_PASSWORD') + \
-        '@127.0.0.1:3306/subsidy_dev?charset=utf8'
+        '@127.0.0.1:3306/subsidy_dev?charset=utf8mb4'
 
 
 class TestingConfig(Config):
@@ -54,7 +54,7 @@ class TestingConfig(Config):
         os.environ.get('TEST_DATABASE_URL') or \
         'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
         os.environ.get('DATABASE_PASSWORD') + \
-        '@127.0.0.1:3306/subsidy_test?charset=utf8'
+        '@127.0.0.1:3306/subsidy_test?charset=utf8mb4'
 
 
 class ProductionConfig(Config):
@@ -62,7 +62,7 @@ class ProductionConfig(Config):
         os.environ.get('DATABASE_URL') or \
         'mysql+pymysql://' + os.environ.get('DATABASE_USER') + ':' + \
         os.environ.get('DATABASE_PASSWORD') + \
-        '@127.0.0.1:3306/subsidy?charset=utf8'
+        '@127.0.0.1:3306/subsidy?charset=utf8mb4'
 
     @classmethod
     def init_app(cls, app):

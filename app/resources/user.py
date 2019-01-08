@@ -29,6 +29,7 @@ login_parser.add_argument('password', help='This field cannot be blank', require
 
 wx_login_parser = reqparse.RequestParser()
 wx_login_parser.add_argument('code', help='This field cannot be blank', required=True)
+wx_login_parser.add_argument('nickname', help='This field cannot be blank', required=True)
 
 registration_parser = reqparse.RequestParser()
 registration_parser.add_argument('username', help='This field cannot be blank', required=True)
@@ -139,15 +140,16 @@ class UserWXLogin(Resource):
         message = 'Logged in as %s.' % openid
         if not user:
             user = User(username=openid)
-            try:
-                db.session.add(user)
-                db.session.commit()
-                message = 'User %s was created.' % user.username
-            except:
-                db.session.rollback()
-                return {
-                    'message': 'Something went wrong.'
-                }, 500
+            message = 'User %s was created.' % user.username
+        user.nickname = data['nickname']
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            return {
+                'message': 'Something went wrong.'
+            }, 500
         access_token = create_access_token(identity=openid)
         refresh_token = create_refresh_token(identity=openid)
         return {

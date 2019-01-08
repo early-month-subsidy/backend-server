@@ -34,6 +34,7 @@ wx_login_parser.add_argument('nickname', help='This field cannot be blank', requ
 registration_parser = reqparse.RequestParser()
 registration_parser.add_argument('username', help='This field cannot be blank', required=True)
 registration_parser.add_argument('password', help='This field cannot be blank', required=True)
+registration_parser.add_argument('nickname', help='This field cannot be blank', required=True)
 registration_parser.add_argument('captcha_id', help='This field cannot be blank', required=True)
 registration_parser.add_argument('captcha', help='This field cannot be blank', required=True)
 
@@ -80,7 +81,7 @@ class UserRegistration(Resource):
                 'message': 'User %s already exists.' % data['username']
             }, 403
 
-        new_user = User(username=data['username'], password=data['password'])
+        new_user = User(username=data['username'], password=data['password'], nickname=data['nickname'])
         try:
             db.session.add(new_user)
             db.session.commit()

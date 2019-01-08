@@ -242,7 +242,8 @@ class OrderItem(TimestampMixin, db.Model):
             'quantity': self.quantity,
             'owner': {
                 'id': self.owner_id,
-                'name': self.owner.username
+                'username': self.owner.username,
+                'nickname': self.owner.nickname
             },
             'board_id': self.board_id,
             'food': {

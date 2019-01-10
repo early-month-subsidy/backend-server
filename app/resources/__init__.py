@@ -59,5 +59,6 @@ api.add_resource(order_item_resources.OrderItemSingle, '/api/order_items/<int:or
 # order routes
 api.add_resource(order_resources.OrderSellerAll, '/seller/restaurants/<int:restaurant_id>/orders')
 api.add_resource(order_resources.OrderSellerSingle, '/seller/orders/<int:order_id>')
+api.add_resource(order_resources.SellerInfo, '/seller/info')
 api.add_resource(order_resources.OrderUserAll, '/api/orders')
 api.add_resource(order_resources.OrderUserSingle, '/api/orders/<int:order_id>')

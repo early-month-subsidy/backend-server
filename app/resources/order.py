@@ -16,6 +16,20 @@ order_create_parser.add_argument('restaurant_id', type=int, required=True)
 order_create_parser.add_argument('items', type=int, action='append', required=True)
 
 
+class SellerInfo(Resource):
+    @jwt_required
+    def get(self):
+        current_user = User.find_by_username(get_jwt_identity())
+        restaurants = Restaurant.find_by_userid(current_user.id)
+        order_num = 0
+        for r in restaurants:
+            order_num += len(Order.find_by_restaurant_id(r.id))
+        return {
+            'restaurant_num': len(restaurants),
+            'order_num': order_num
+        }, 200
+
+
 class OrderUserAll(Resource):
     @jwt_required
     def get(self):

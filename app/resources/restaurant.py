@@ -137,7 +137,7 @@ class RestaurantUserAll(Resource):
 class RestaurantUserQuery(Resource):
     def get(self):
         data = restaurant_query_parser.parse_args()
-        restaurants = Restaurant.query.filter(Restaurant.name.like('%%s%', data['name'])).all()
+        restaurants = Restaurant.query.filter(Restaurant.name.like('%%' + data['name'] + '%%')).all()
         return {
             'restaurants': [r.to_json() for r in restaurants]
         }, 200

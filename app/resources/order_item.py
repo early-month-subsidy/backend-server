@@ -32,10 +32,21 @@ class OrderItemAll(Resource):
         current_user = User.find_by_username(get_jwt_identity())
         board = Board.find_by_id(board_id)
         board.occupation = True
-        order_item = OrderItem(quantity=data['quantity'],
-                               owner_id=current_user.id,
-                               board_id=board_id,
-                               food_id=data['food_id'])
+        # travis order items in board
+        order_items = OrderItem.find_by_board_id(board_id)
+        check_items_exists = False
+        order_item = None
+        for i in order_items:
+            if i.owner_id == current_user.id and i.food_id == data['food_id']:
+                i.quantity = data['quantity']
+                check_items_exists = True
+                order_item = i
+                break
+        if not check_items_exists:
+            order_item = OrderItem(quantity=data['quantity'],
+                                   owner_id=current_user.id,
+                                   board_id=board_id,
+                                   food_id=data['food_id'])
         try:
             db.session.add(order_item)
             db.session.add(board)

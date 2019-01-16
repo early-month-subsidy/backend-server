@@ -224,6 +224,7 @@ class OrderItem(TimestampMixin, db.Model):
     board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
     food_id = db.Column(db.Integer, db.ForeignKey('foods.id'))
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=True)
+    board = db.relationship('Board')
     owner = db.relationship('User')
     food = db.relationship('Food')
 
@@ -245,7 +246,10 @@ class OrderItem(TimestampMixin, db.Model):
                 'username': self.owner.username,
                 'nickname': self.owner.nickname
             },
-            'board_id': self.board_id,
+            'board': {
+                'id': self.board_id,
+                'name': self.board.name
+            },
             'food': {
                 'id': self.food_id,
                 'name': self.food.name
